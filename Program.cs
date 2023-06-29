@@ -16,7 +16,7 @@ namespace HttpListenerExample
 {
     class HttpServer 
     {
-        public static HttpListener listener;
+        public static HttpListener? listener;
         public static string url = "http://localhost:8080/";
         public static int pageViews = 0;
         public static int requestCount = 0;
@@ -51,6 +51,9 @@ namespace HttpListenerExample
             // While a user hasn't visited the `shutdown` url, keep on handling requests
             while (runServer)
             {
+                if (listener == null) {
+                    continue;
+                }
                 // Will wait here until we hear from a connection
                 HttpListenerContext ctx = await listener.GetContextAsync();
 
@@ -60,21 +63,21 @@ namespace HttpListenerExample
 
                 // Print out some info about the request
                 Console.WriteLine("Request #: {0}", ++requestCount);
-                Console.WriteLine(req.Url.ToString());
-                Console.WriteLine(req.HttpMethod);
-                Console.WriteLine(req.UserHostName);
-                Console.WriteLine(req.UserAgent);
+                Console.WriteLine(req?.Url?.ToString());
+                Console.WriteLine(req?.HttpMethod);
+                Console.WriteLine(req?.UserHostName);
+                Console.WriteLine(req?.UserAgent);
                 Console.WriteLine();
 
                 // If `shutdown` url requested w/ POST, then shutdown the server after serving the page
-                if ((req.HttpMethod == "POST") && (req.Url.AbsolutePath == "/shutdown"))
+                if ((req?.HttpMethod == "POST") && (req?.Url?.AbsolutePath == "/shutdown"))
                 {
                     Console.WriteLine("Shutdown requested");
                     runServer = false;
                 }
 
                 // Make sure we don't increment the page views counter if `favicon.ico` is requested
-                if (req.Url.AbsolutePath != "/favicon.ico")
+                if (req?.Url?.AbsolutePath != "/favicon.ico")
                     pageViews += 1;
 
                 // Write the response info
