@@ -32,6 +32,7 @@ namespace HttpListenerExample
                 <form method=""post"" action=""cointoss"">
                     <button type=""submit"">Toss a Coin</button>
                 </form>
+                <h1>A Title</h1>
                 <p>Page Views: {1}</p>
                 <form method=""post"" action=""shutdown"">
                   <input type=""submit"" value=""Shutdown"" {2}>
