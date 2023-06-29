@@ -28,8 +28,10 @@ namespace HttpListenerExample
                 <title>HttpListener Example</title>
               </head>
               <body>
-                <p>Coin Toss Result: {0}</p>
-                <button>Toss a Coin</button>
+                {0}
+                <form method=""post"" action=""cointoss"">
+                    <button type=""submit"">Toss a Coin</button>
+                </form>
                 <p>Page Views: {1}</p>
                 <form method=""post"" action=""shutdown"">
                   <input type=""submit"" value=""Shutdown"" {2}>
@@ -68,21 +70,32 @@ namespace HttpListenerExample
                 Console.WriteLine(req?.UserHostName);
                 Console.WriteLine(req?.UserAgent);
                 Console.WriteLine();
+                string coinTossResult = "";
 
                 // If `shutdown` url requested w/ POST, then shutdown the server after serving the page
-                if ((req?.HttpMethod == "POST") && (req?.Url?.AbsolutePath == "/shutdown"))
+                if (req?.HttpMethod == "POST") 
                 {
-                    Console.WriteLine("Shutdown requested");
-                    runServer = false;
+                    if (req?.Url?.AbsolutePath == "/shutdown")
+                    {
+                        Console.WriteLine("Shutdown requested");
+                        runServer = false;
+                    }
+                    if (req?.Url?.AbsolutePath == "/cointoss")
+                    {
+                        Console.WriteLine("Tossing a Coin");
+                        coinTossResult = $"<p>Coin Toss Result: {CoinToss()}</p>";
+                    }
                 }
 
                 // Make sure we don't increment the page views counter if `favicon.ico` is requested
                 if (req?.Url?.AbsolutePath != "/favicon.ico")
+                {
                     pageViews += 1;
+                }
+                
 
                 // Write the response info
                 string disableSubmit = !runServer ? "disabled" : "";
-                string coinTossResult = CoinToss();
                 byte[] data = Encoding.UTF8.GetBytes(String.Format(pageTemplate, coinTossResult, pageViews, disableSubmit));
                 resp.ContentType = "text/html";
                 resp.ContentEncoding = Encoding.UTF8;
