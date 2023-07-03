@@ -21,7 +21,6 @@ namespace HttpListenerExample
         public static int pageViews = 0;
         public static int requestCount = 0;
         public static Random random = new Random();
-        public static string fileToServe = "";
         public static string pageTemplate =
         @"<!DOCTYPE>
             <html>
@@ -41,7 +40,7 @@ namespace HttpListenerExample
               </body>
             </html>";
 
-        public static string buildTemplate()
+        public static string buildTemplate(string fileToServe = "")
         {
             string result = pageTemplate;
             if (fileToServe != "") {
@@ -82,6 +81,7 @@ namespace HttpListenerExample
                 Console.WriteLine(req?.UserAgent);
                 Console.WriteLine();
                 string coinTossResult = "";
+                string fileToServe = "";
 
                 // If `shutdown` url requested w/ POST, then shutdown the server after serving the page
                 if (req?.HttpMethod == "POST") 
@@ -111,8 +111,9 @@ namespace HttpListenerExample
 
                 // Write the response info
                 string disableSubmit = !runServer ? "disabled" : "";
-                pageTemplate = buildTemplate();
-                byte[] data = Encoding.UTF8.GetBytes(String.Format(pageTemplate, coinTossResult, pageViews, disableSubmit));
+                string servedTemplate = buildTemplate(fileToServe);
+                fileToServe = "";
+                byte[] data = Encoding.UTF8.GetBytes(String.Format(servedTemplate, coinTossResult, pageViews, disableSubmit));
                 resp.ContentType = "text/html";
                 resp.ContentEncoding = Encoding.UTF8;
                 resp.ContentLength64 = data.LongLength;
