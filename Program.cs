@@ -21,6 +21,7 @@ namespace HttpListenerExample
         public static int pageViews = 0;
         public static int requestCount = 0;
         public static Random random = new Random();
+        public static string fileToServe = "";
         public static string pageTemplate =
         @"<!DOCTYPE>
             <html>
@@ -39,6 +40,15 @@ namespace HttpListenerExample
                 </form>
               </body>
             </html>";
+
+        public static string buildTemplate()
+        {
+            string result = pageTemplate;
+            if (fileToServe != "") {
+                result = File.ReadAllText(fileToServe,Encoding.UTF8);
+            }
+            return result;
+        }
         public static string CoinToss()
         {
             
@@ -87,6 +97,10 @@ namespace HttpListenerExample
                         coinTossResult = $"<p>Coin Toss Result: {CoinToss()}</p>";
                     }
                 }
+                if (req?.HttpMethod == "GET" && req?.Url?.AbsolutePath == "/")
+                {
+                    fileToServe = "public/index.html";
+                }
 
                 // Make sure we don't increment the page views counter if `favicon.ico` is requested
                 if (req?.Url?.AbsolutePath != "/favicon.ico")
@@ -97,6 +111,7 @@ namespace HttpListenerExample
 
                 // Write the response info
                 string disableSubmit = !runServer ? "disabled" : "";
+                pageTemplate = buildTemplate();
                 byte[] data = Encoding.UTF8.GetBytes(String.Format(pageTemplate, coinTossResult, pageViews, disableSubmit));
                 resp.ContentType = "text/html";
                 resp.ContentEncoding = Encoding.UTF8;
